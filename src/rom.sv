@@ -12,7 +12,9 @@ module ROM (
 `define OUT  3'b001 //.
 `define NOP  3'b000 //,
 
-wire [2:0] rom_array[0:123] = '{
+localparam len = 124;
+
+ wire [2:0] rom_array[0:len-1] = '{
     `DEC,
     `DEC,
     `IF,
@@ -138,7 +140,8 @@ wire [2:0] rom_array[0:123] = '{
     `OUT,
     `OUT
 };
-assign code = addr <= 123 ? rom_array[addr] : 3'h0;
-assign rom_overrun =  addr <= 123 ? 1'h0 : 1'h1;
-endmodule
 
+assign code = addr < len ? rom_array[addr] : 3'h0;
+assign rom_overrun =  addr < len ? 1'h0 : 1'h1;
+
+endmodule
