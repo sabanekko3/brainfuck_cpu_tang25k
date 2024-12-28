@@ -97,12 +97,15 @@ always@(posedge clk) begin
             end
 
             `BACK : begin
+                if(ram_val == 8'h0)begin
+                    prg_cnt[prg_cnt_sel - 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                end
+
+                prg_cnt_sel <= prg_cnt_sel - 8'h1;
+
                 next_ram_addr <= ram_addr;
                 next_ram_val <= ram_val;
                 cout <= 1'b0;
-
-                prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
-                prg_cnt_sel <= prg_cnt_sel - 8'h1;
             end
 
             `OUT : begin
