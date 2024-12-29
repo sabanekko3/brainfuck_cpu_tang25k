@@ -4,6 +4,7 @@ module SerialOut#(
 )
 (
     input clk,
+    input nrst,
     input [7:0] char,
     input valid,
     output uart_tx
@@ -42,7 +43,7 @@ reg [7:0] uart_tx_byte = 8'h00;
 uart_tx uart_tx_m
 (
 	.clk(clk),
-	.rst_n(1'b1),
+	.rst_n(nrst),
 	.tx_data(uart_tx_byte),
 	.tx_data_valid(uart_tx_start),
 	.tx_data_ready(uart_tx_ready),

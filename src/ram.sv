@@ -16,7 +16,7 @@ reg [data_width-1 : 0] mem_array [data_n-1 : 0];
 wire [data_width-1  :0] zero = 0;
 
 integer i;
-always @(posedge clk)begin
+always @(posedge clk,negedge nrst)begin
     if(!nrst)begin
         for(i=0; i<data_n; i = i+1)
             mem_array[i] <= zero;

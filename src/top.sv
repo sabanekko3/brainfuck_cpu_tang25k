@@ -9,7 +9,16 @@ module top(
     output uart_tx_sub
 );
 
-reg rst = 1'b1;
+reg nrst = 1'b1;
+reg rst_flag = 1'b0;
+always @(posedge clk)begin
+    if(!rst_flag)begin
+        nrst <= 1'b0;
+        rst_flag <= 1'b1;
+    end 
+    else
+        nrst <= 1'b1;
+end
 
 ////////////////////////////////////////////////
 //clock generate
@@ -43,12 +52,15 @@ ROM rom(
 reg [7:0] ram_addr = 8'h0;
 wire [7:0] ram_val;
 
+wire [7:0] new_ram_addr;
+wire [7:0] new_ram_val;
+
 RAM#(
     .data_width(8),
     .size_width(6)
 )ram(
     .clk(~main_clk),
-    .nrst(rst),
+    .nrst(nrst),
     .write_data(new_ram_val),
     .addr(ram_addr),
     .read_data(ram_val)
@@ -63,8 +75,6 @@ end
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-wire [7:0] new_ram_addr;
-wire [7:0] new_ram_val;
 wire cout;
 
 BFCore core(
@@ -83,7 +93,7 @@ BFCore core(
 ////////////////////////////////////////////////
 SevSegByte sevseg(
     .clk(clk),
-    .byte_data(read_data),
+    .byte_data(ram_val),
     .sevseg_led(sevseg_led),
     .sevseg_sel(sevseg_sel)
 );
@@ -92,6 +102,7 @@ assign led_array = ~rom_addr;
 
 SerialOut serial(
     .clk(clk),
+    .nrst(nrst),
     .char(new_ram_val),
     .valid(main_clk & cout),
     .uart_tx(uart_tx)
