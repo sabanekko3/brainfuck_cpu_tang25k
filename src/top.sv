@@ -40,27 +40,28 @@ ROM rom(
 ////////////////////////////////////////////////
 //RAM control
 ////////////////////////////////////////////////
-localparam data_width = 8;
-localparam ram_size = 64;
-reg [data_width-1 : 0] ram [ram_size-1 : 0];
-reg [7:0] ram_addr;
+wire [7:0] ram_val;
+reg [7:0] ram_addr = 8'h0;
 
-integer i;
-initial begin
-    //ram init
-    for(i=0;i<ram_size; i = i+1)begin
-        ram[i] = 8'h0;
-    end
-    ram_addr = 8'h0;
-end
+wire [7:0] new_ram_addr;
+wire [7:0] new_ram_val;
 
-wire [7:0] next_ram_addr;
-wire [7:0] next_ram_val;
+reg [7:0] ram_addr = 8'h0;
+
+RAM#(
+    .data_width(8),
+    .size_width(6)
+)ram(
+    .clk(~main_clk),
+    .nrst(rst),
+    .write_data(new_ram_val),
+    .addr(new_ram_addr),
+    .read_data(ram_val)
+);
 
 always @(negedge main_clk)begin
     if(~finish)begin
-        ram_addr <= next_ram_addr;
-        ram[ram_addr] <= next_ram_val;
+        ram_addr <= new_ram_addr;
     end
 end
 
@@ -69,13 +70,13 @@ end
 ////////////////////////////////////////////////
 
 wire cout;
-BFCore alu(
+BFCore core(
     .clk(main_clk),
     .opecode(opecode),
     .ram_addr(ram_addr),
-    .ram_val(ram[ram_addr]),
-    .next_ram_addr(next_ram_addr),
-    .next_ram_val(next_ram_val),
+    .ram_val(ram_val),
+    .next_ram_addr(new_ram_addr),
+    .next_ram_val(new_ram_val),
     .cout(cout),
     .rom_addr(rom_addr)
 );
@@ -86,18 +87,16 @@ BFCore alu(
 
 SevSegByte sevseg(
     .clk(clk),
-    .byte_data(ram[ram_addr]),
+    .byte_data(read_data),
     .sevseg_led(sevseg_led),
     .sevseg_sel(sevseg_sel)
 );
 
 assign led_array = ~rom_addr;
 
-reg [7:0] output_char;
-reg char_valid;
 SerialOut serial(
     .clk(clk),
-    .char(next_ram_val),
+    .char(new_ram_val),
     .valid(main_clk & cout),
     .uart_tx(uart_tx)
 );

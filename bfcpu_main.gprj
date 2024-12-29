@@ -7,6 +7,7 @@
     <FileList>
         <File path="src/bfcore.sv" type="file.verilog" enable="1"/>
         <File path="src/clock_divider.v" type="file.verilog" enable="1"/>
+        <File path="src/ram.sv" type="file.verilog" enable="1"/>
         <File path="src/rom.sv" type="file.verilog" enable="1"/>
         <File path="src/serial_output.sv" type="file.verilog" enable="1"/>
         <File path="src/sevseg.v" type="file.verilog" enable="1"/>
