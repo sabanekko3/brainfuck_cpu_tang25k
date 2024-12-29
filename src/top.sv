@@ -40,13 +40,8 @@ ROM rom(
 ////////////////////////////////////////////////
 //RAM control
 ////////////////////////////////////////////////
+reg [7:0] ram_addr = 8'h0;
 wire [7:0] ram_val;
-reg [7:0] ram_addr = 8'h0;
-
-wire [7:0] new_ram_addr;
-wire [7:0] new_ram_val;
-
-reg [7:0] ram_addr = 8'h0;
 
 RAM#(
     .data_width(8),
@@ -55,7 +50,7 @@ RAM#(
     .clk(~main_clk),
     .nrst(rst),
     .write_data(new_ram_val),
-    .addr(new_ram_addr),
+    .addr(ram_addr),
     .read_data(ram_val)
 );
 
@@ -68,8 +63,10 @@ end
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-
+wire [7:0] new_ram_addr;
+wire [7:0] new_ram_val;
 wire cout;
+
 BFCore core(
     .clk(main_clk),
     .opecode(opecode),
@@ -84,7 +81,6 @@ BFCore core(
 ////////////////////////////////////////////////
 //output
 ////////////////////////////////////////////////
-
 SevSegByte sevseg(
     .clk(clk),
     .byte_data(read_data),
@@ -102,6 +98,5 @@ SerialOut serial(
 );
 
 assign uart_tx_sub = uart_tx;
-
 
 endmodule
