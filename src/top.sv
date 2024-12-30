@@ -1,5 +1,6 @@
 module top(
     input clk,
+    input rst,
 
     output [6:0] sevseg_led,
     output sevseg_sel,
@@ -9,16 +10,7 @@ module top(
     output uart_tx_sub
 );
 
-reg nrst = 1'b1;
-reg rst_flag = 1'b0;
-always @(posedge clk)begin
-    if(!rst_flag)begin
-        nrst <= 1'b0;
-        rst_flag <= 1'b1;
-    end 
-    else
-        nrst <= 1'b1;
-end
+wire nrst = ~rst;
 
 ////////////////////////////////////////////////
 //clock generate
