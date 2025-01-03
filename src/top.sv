@@ -12,6 +12,14 @@ module top(
 
 wire nrst = ~rst;
 
+
+//1.read rom data
+//2.decode opecode
+//3.read ram data
+//4.calc
+//5.write ram data/set prg cnt
+
+
 ////////////////////////////////////////////////
 //clock generate
 ////////////////////////////////////////////////
@@ -70,6 +78,7 @@ end
 wire cout;
 
 BFCore core(
+    .enable(~finish),
     .clk(main_clk),
     .opecode(opecode),
     .ram_addr(ram_addr),
