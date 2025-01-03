@@ -3,6 +3,7 @@ module BFCore#(
     parameter addr_bit_width = 8
 )
 (
+    input enable,
     input clk,
     input [2:0] opecode,
     input [data_bit_width-1 : 0] ram_addr,
@@ -38,89 +39,95 @@ assign rom_addr = prg_cnt[prg_cnt_sel];
 reg jumping = 1'h0;
 reg [7:0] nest_count = 8'h0;
 always@(posedge clk) begin
-    if(jumping)begin
-        if(opecode == `IF)begin
-            nest_count = nest_count + 8'h1;
-        end
-        else if(opecode == `BACK)begin
-            nest_count = nest_count - 8'h1;
-        end
-        
-        if(nest_count == 8'hFF)begin
-            jumping = 1'b0;
-            nest_count = 8'h0;
-        end
-
-        prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
-    end else begin
-        case(opecode)
-            `INC : begin
-                next_ram_addr <= ram_addr;
-                next_ram_val <= ram_val + 1;
-                cout <= 1'b0;
-                prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+    if(enable)begin
+        if(jumping)begin
+            if(opecode == `IF)begin
+                nest_count = nest_count + 8'h1;
             end
-
-            `DEC : begin
-                next_ram_addr <= ram_addr;
-                next_ram_val <= ram_val - 1;
-                cout <= 1'b0;
-                prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
-            end
-
-            `MOVR : begin
-                next_ram_addr <= ram_addr + 1;
-                next_ram_val <= ram_val;
-                cout <= 1'b0;
-                prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+            else if(opecode == `BACK)begin
+                nest_count = nest_count - 8'h1;
             end
             
-            `MOVL : begin
-                next_ram_addr <= ram_addr - 1;
-                next_ram_val <= ram_val;
-                cout <= 1'b0;
-                prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+            if(nest_count == 8'hFF)begin
+                jumping = 1'b0;
+                nest_count = 8'h0;
             end
 
-            `IF : begin
-                if(ram_val == 8'h0)begin
-                    jumping = 1'h1;
+            prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+        end else begin
+            case(opecode)
+                `INC : begin
+                    next_ram_addr <= ram_addr;
+                    next_ram_val <= ram_val + 1;
+                    cout <= 1'b0;
                     prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
-                end else begin
-                    prg_cnt_sel <= prg_cnt_sel + 8'h1;
-                    prg_cnt[prg_cnt_sel + 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
                 end
 
-                next_ram_addr <= ram_addr;
-                next_ram_val <= ram_val;
-                cout <= 1'b0;
-            end
-
-            `BACK : begin
-                if(ram_val == 8'h0)begin
-                    prg_cnt[prg_cnt_sel - 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                `DEC : begin
+                    next_ram_addr <= ram_addr;
+                    next_ram_val <= ram_val - 1;
+                    cout <= 1'b0;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
                 end
 
-                prg_cnt_sel <= prg_cnt_sel - 8'h1;
+                `MOVR : begin
+                    next_ram_addr <= ram_addr + 1;
+                    next_ram_val <= ram_val;
+                    cout <= 1'b0;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                end
+                
+                `MOVL : begin
+                    next_ram_addr <= ram_addr - 1;
+                    next_ram_val <= ram_val;
+                    cout <= 1'b0;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                end
 
-                next_ram_addr <= ram_addr;
-                next_ram_val <= ram_val;
-                cout <= 1'b0;
-            end
+                `IF : begin
+                    if(ram_val == 8'h0)begin
+                        jumping = 1'h1;
+                        prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    end else begin
+                        prg_cnt_sel <= prg_cnt_sel + 8'h1;
+                        prg_cnt[prg_cnt_sel + 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    end
 
-            `OUT : begin
-                next_ram_addr <= ram_addr;
-                next_ram_val <= ram_val;
-                cout <= 1'b1;
-                prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
-            end
-            
-            default: begin
-                next_ram_addr <= ram_addr;
-                next_ram_val <= ram_val;
-                cout <= 1'b0;
-            end
-        endcase
+                    next_ram_addr <= ram_addr;
+                    next_ram_val <= ram_val;
+                    cout <= 1'b0;
+                end
+
+                `BACK : begin
+                    if(ram_val == 8'h0)begin
+                        prg_cnt[prg_cnt_sel - 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    end
+
+                    prg_cnt_sel <= prg_cnt_sel - 8'h1;
+
+                    next_ram_addr <= ram_addr;
+                    next_ram_val <= ram_val;
+                    cout <= 1'b0;
+                end
+
+                `OUT : begin
+                    next_ram_addr <= ram_addr;
+                    next_ram_val <= ram_val;
+                    cout <= 1'b1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                end
+                
+                default: begin
+                    next_ram_addr <= ram_addr;
+                    next_ram_val <= ram_val;
+                    cout <= 1'b0;
+                end
+            endcase
+        end
+    end else begin
+        next_ram_addr <= ram_addr;
+        next_ram_val <= ram_val;
+        cout <= 1'b0;
     end
 end
 

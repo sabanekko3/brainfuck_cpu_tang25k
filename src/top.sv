@@ -1,5 +1,6 @@
 module top(
     input clk,
+    input rst,
 
     output [6:0] sevseg_led,
     output sevseg_sel,
@@ -9,7 +10,15 @@ module top(
     output uart_tx_sub
 );
 
-reg rst = 1'b1;
+wire nrst = ~rst;
+
+
+//1.read rom data
+//2.decode opecode
+//3.read ram data
+//4.calc
+//5.write ram data/set prg cnt
+
 
 ////////////////////////////////////////////////
 //clock generate
@@ -40,42 +49,42 @@ ROM rom(
 ////////////////////////////////////////////////
 //RAM control
 ////////////////////////////////////////////////
-localparam data_width = 8;
-localparam ram_size = 64;
-reg [data_width-1 : 0] ram [ram_size-1 : 0];
-reg [7:0] ram_addr;
+reg [7:0] ram_addr = 8'h0;
+wire [7:0] ram_val;
 
-integer i;
-initial begin
-    //ram init
-    for(i=0;i<ram_size; i = i+1)begin
-        ram[i] = 8'h0;
-    end
-    ram_addr = 8'h0;
-end
+wire [7:0] new_ram_addr;
+wire [7:0] new_ram_val;
 
-wire [7:0] next_ram_addr;
-wire [7:0] next_ram_val;
+RAM#(
+    .data_width(8),
+    .size_width(6)
+)ram(
+    .clk(~main_clk),
+    .nrst(nrst),
+    .write_data(new_ram_val),
+    .addr(ram_addr),
+    .read_data(ram_val)
+);
 
 always @(negedge main_clk)begin
     if(~finish)begin
-        ram_addr <= next_ram_addr;
-        ram[ram_addr] <= next_ram_val;
+        ram_addr <= new_ram_addr;
     end
 end
 
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-
 wire cout;
-BFCore alu(
+
+BFCore core(
+    .enable(~finish),
     .clk(main_clk),
     .opecode(opecode),
     .ram_addr(ram_addr),
-    .ram_val(ram[ram_addr]),
-    .next_ram_addr(next_ram_addr),
-    .next_ram_val(next_ram_val),
+    .ram_val(ram_val),
+    .next_ram_addr(new_ram_addr),
+    .next_ram_val(new_ram_val),
     .cout(cout),
     .rom_addr(rom_addr)
 );
@@ -83,26 +92,23 @@ BFCore alu(
 ////////////////////////////////////////////////
 //output
 ////////////////////////////////////////////////
-
 SevSegByte sevseg(
     .clk(clk),
-    .byte_data(ram[ram_addr]),
+    .byte_data(ram_val),
     .sevseg_led(sevseg_led),
     .sevseg_sel(sevseg_sel)
 );
 
 assign led_array = ~rom_addr;
 
-reg [7:0] output_char;
-reg char_valid;
 SerialOut serial(
     .clk(clk),
-    .char(next_ram_val),
+    .nrst(nrst),
+    .char(new_ram_val),
     .valid(main_clk & cout),
     .uart_tx(uart_tx)
 );
 
 assign uart_tx_sub = uart_tx;
-
 
 endmodule
