@@ -39,9 +39,9 @@ always @(posedge main_clk)begin
     clk_cnt <= clk_cnt + 2'b1;
 end
 
-wire clk0 = clk_cnt == 2'b00; //set ram_addr and read mode
-wire clk1 = clk_cnt == 2'b01; //ram_read  
-wire clk2 = clk_cnt == 2'b10; //decode 
+//wire clk0 = clk_cnt == 2'b00; //nop
+wire clk1 = clk_cnt == 2'b01; //ram_read
+wire clk2 = clk_cnt == 2'b10; //decode
 wire clk3 = clk_cnt == 2'b11; //ram_write
 
 ////////////////////////////////////////////////
@@ -68,7 +68,7 @@ wire [7:0] new_ram_val;
 
 wire ram_write = clk2 | clk3;
 
-always @(posedge clk0)begin
+always @(posedge clk3)begin
     ram_addr <= new_ram_addr;
 end
 
@@ -112,7 +112,7 @@ SevSegByte sevseg(
 
 assign led_array = ~rom_addr;
 
-wire char_data_valid = clk0 & cout;
+wire char_data_valid = ~clk2 & cout;
 SerialOut serial(
     .clk(clk),
     .nrst(nrst),
