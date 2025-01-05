@@ -5,8 +5,10 @@
 //Part Number: GW5A-LV25MG121NES
 //Device: GW5A-25
 //Device Version: A
-//Created Time: Mon 12 30 21:51:52 2024
+//Created Time: Sat 01 04 23:44:54 2025
 
+IO_LOC "char_pushing" D7;
+IO_PORT "char_pushing" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "uart_tx_sub" G11;
 IO_PORT "uart_tx_sub" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "uart_tx" C3;
