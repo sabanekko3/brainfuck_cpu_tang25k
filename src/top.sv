@@ -13,14 +13,6 @@ module top(
 
 wire nrst = ~rst;
 
-
-//1.read rom data
-//2.decode opecode
-//3.read ram data
-//4.calc
-//5.write ram data/set prg cnt
-
-
 ////////////////////////////////////////////////
 //clock generate
 ////////////////////////////////////////////////
@@ -33,16 +25,15 @@ main_clk_divider(
     .divided_clk(main_clk)
 );
 
-reg [1:0] clk_cnt = 2'b00;
+reg [2:0] clk_array = 3'b001;
 
 always @(posedge main_clk)begin
-    clk_cnt <= clk_cnt + 2'b1;
+    clk_array <= {clk_array[1:0],clk_array[2]};
 end
 
-//wire clk0 = clk_cnt == 2'b00; //nop
-wire clk1 = clk_cnt == 2'b01; //ram_read
-wire clk2 = clk_cnt == 2'b10; //decode
-wire clk3 = clk_cnt == 2'b11; //ram_write
+wire clk1 = clk_array[0]&~main_clk; //ram_read
+wire clk2 = clk_array[1]&~main_clk; //decode
+wire clk3 = clk_array[2]&~main_clk; //ram_write
 
 ////////////////////////////////////////////////
 //ROM control
@@ -66,15 +57,22 @@ wire [7:0] ram_val;
 wire [7:0] new_ram_addr;
 wire [7:0] new_ram_val;
 
-wire ram_write = clk2 | clk3;
+reg  ram_write = 1'b0;
+always @(posedge clk2, negedge clk3)begin
+    if(clk2)
+        ram_write <= 1'b1;
+    else
+        ram_write <= 1'b0;
+end
 
 always @(posedge clk3)begin
     ram_addr <= new_ram_addr;
 end
 
+wire ram_clk = clk1 | clk3;
 Gowin_SP ram(
     .dout(ram_val), //output [7:0] dout
-    .clk(clk1 | clk3), //input clk
+    .clk(ram_clk), //input clk
     .oce(1'b1), //input oce
     .ce(1'b1), //input ce
     .reset(1'b0), //input reset
@@ -112,7 +110,7 @@ SevSegByte sevseg(
 
 assign led_array = ~rom_addr;
 
-wire char_data_valid = ~clk2 & cout;
+wire char_data_valid = clk3 & cout;
 SerialOut serial(
     .clk(clk),
     .nrst(nrst),
