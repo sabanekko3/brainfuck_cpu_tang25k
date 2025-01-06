@@ -1,17 +1,18 @@
 module BFCore#(
+    parameter ram_addr_width = 8,
     parameter data_bit_width = 8,
-    parameter addr_bit_width = 8
+    parameter rom_addr_width = 10
 )
 (
     input enable,
     input clk,
     input [2:0] opecode,
-    input [data_bit_width-1 : 0] ram_addr,
+    input [ram_addr_width-1 : 0] ram_addr,
     input [data_bit_width-1 : 0] ram_val,
-    output reg [data_bit_width-1 : 0] next_ram_addr,
+    output reg [ram_addr_width-1 : 0] next_ram_addr,
     output reg [data_bit_width-1 : 0] next_ram_val,
     output reg cout,
-    output [7:0] rom_addr
+    output [rom_addr_width-1 : 0] rom_addr
 );
 
 `define INC  3'b111 //+
@@ -25,13 +26,13 @@ module BFCore#(
 
 localparam prg_cnt_depth = 8;
 reg [7:0] prg_cnt_sel;
-reg [7:0] prg_cnt [prg_cnt_depth-1 : 0];
+reg [rom_addr_width-1 : 0] prg_cnt [prg_cnt_depth-1 : 0];
 
 integer i;
 initial begin
     prg_cnt_sel = 8'h0;
     for(i = 0; i < prg_cnt_depth; i = i+1)
-        prg_cnt[i] = 8'h0;
+        prg_cnt[i] = 0;
 end
 
 assign rom_addr = prg_cnt[prg_cnt_sel];
@@ -60,37 +61,37 @@ always@(posedge clk) begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val + 1;
                     cout <= 1'b0;
-                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
 
                 `DEC : begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val - 1;
                     cout <= 1'b0;
-                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
 
                 `MOVR : begin
                     next_ram_addr <= ram_addr + 1;
                     next_ram_val <= ram_val;
                     cout <= 1'b0;
-                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
                 
                 `MOVL : begin
                     next_ram_addr <= ram_addr - 1;
                     next_ram_val <= ram_val;
                     cout <= 1'b0;
-                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
 
                 `IF : begin
                     if(ram_val == 8'h0)begin
                         jumping = 1'h1;
-                        prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                        prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                     end else begin
                         prg_cnt_sel <= prg_cnt_sel + 8'h1;
-                        prg_cnt[prg_cnt_sel + 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                        prg_cnt[prg_cnt_sel + 8'h1] <= prg_cnt[prg_cnt_sel] + 1;
                     end
 
                     next_ram_addr <= ram_addr;
@@ -100,7 +101,7 @@ always@(posedge clk) begin
 
                 `BACK : begin
                     if(ram_val == 8'h0)begin
-                        prg_cnt[prg_cnt_sel - 8'h1] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                        prg_cnt[prg_cnt_sel - 8'h1] <= prg_cnt[prg_cnt_sel] + 1;
                     end
 
                     prg_cnt_sel <= prg_cnt_sel - 8'h1;
@@ -114,7 +115,7 @@ always@(posedge clk) begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val;
                     cout <= 1'b1;
-                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
                 
                 default: begin

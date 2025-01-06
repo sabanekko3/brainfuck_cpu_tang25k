@@ -39,7 +39,7 @@ wire clk3 = clk_array[2]&~main_clk; //ram_write
 ////////////////////////////////////////////////
 //ROM control
 ////////////////////////////////////////////////
-wire [7:0] rom_addr;
+wire [10:0] rom_addr;
 wire [2:0] opecode;
 wire finish;
 
