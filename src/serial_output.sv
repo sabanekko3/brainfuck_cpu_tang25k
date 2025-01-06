@@ -40,7 +40,7 @@ reg uart_tx_start;
 wire uart_tx_ready;
 reg [7:0] uart_tx_byte = 8'h00;
 
-uart_tx uart_tx_m
+UartTx uart_tx_m
 (
 	.clk(clk),
 	.rst_n(nrst),

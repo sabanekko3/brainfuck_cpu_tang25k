@@ -6,6 +6,7 @@ module top(
     output sevseg_sel,
     output [7:0] led_array,
 
+    output pwm1_out,
     output uart_tx,
     output uart_tx_sub, //G11
     output char_pushing
@@ -110,17 +111,19 @@ SevSegByte sevseg(
 
 assign led_array = ~rom_addr;
 
-wire char_data_valid = clk3 & cout;
-SerialOut serial(
+wire sfr_write = clk3 & cout;
+SFR sfr(
     .clk(clk),
     .nrst(nrst),
-    .char(new_ram_val),
-    .valid(char_data_valid),
+    .val(new_ram_val),
+    .addr(ram_addr),
+    .valid(sfr_write),
+    .pwm1_out(pwm1_out),
     .uart_tx(uart_tx)
 );
 
 assign uart_tx_sub = uart_tx;
-assign char_pushing = char_data_valid;
+assign char_pushing = 0;//sfr_write;
 
 
 endmodule
