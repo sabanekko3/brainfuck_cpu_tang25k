@@ -2,41 +2,47 @@ module top(
     input clk,
     input rst,
 
+    input enc_a,
+    input enc_b,
+
     output [6:0] sevseg_led,
     output sevseg_sel,
     output [7:0] led_array,
 
+    output pwm1_out,
     output uart_tx,
-    output uart_tx_sub
+    output uart_tx_sub, //G11
+    output char_pushing
 );
 
 wire nrst = ~rst;
-
-
-//1.read rom data
-//2.decode opecode
-//3.read ram data
-//4.calc
-//5.write ram data/set prg cnt
-
 
 ////////////////////////////////////////////////
 //clock generate
 ////////////////////////////////////////////////
 wire main_clk;
 ClockDivider #(
-    .division_ratio(50_000)
+    .division_ratio(1_000)
 )
 main_clk_divider(
     .base_clk(clk),
     .divided_clk(main_clk)
 );
 
+reg [2:0] clk_array = 3'b001;
+
+always @(posedge main_clk)begin
+    clk_array <= {clk_array[1:0],clk_array[2]};
+end
+
+wire clk1 = clk_array[0]&~main_clk; //ram_read
+wire clk2 = clk_array[1]&~main_clk; //decode
+wire clk3 = clk_array[2]&~main_clk; //ram_write
 
 ////////////////////////////////////////////////
 //ROM control
 ////////////////////////////////////////////////
-wire [7:0] rom_addr;
+wire [10:0] rom_addr;
 wire [2:0] opecode;
 wire finish;
 
@@ -55,37 +61,48 @@ wire [7:0] ram_val;
 wire [7:0] new_ram_addr;
 wire [7:0] new_ram_val;
 
-RAM#(
-    .data_width(8),
-    .size_width(6)
-)ram(
-    .clk(~main_clk),
-    .nrst(nrst),
-    .write_data(new_ram_val),
-    .addr(ram_addr),
-    .read_data(ram_val)
-);
+wire [7:0] sfr_read_val;
 
-always @(negedge main_clk)begin
-    if(~finish)begin
-        ram_addr <= new_ram_addr;
-    end
+reg  ram_write = 1'b0;
+always @(posedge clk2, negedge clk3)begin
+    if(clk2)
+        ram_write <= 1'b1;
+    else
+        ram_write <= 1'b0;
 end
+
+always @(posedge clk3)begin
+    ram_addr <= new_ram_addr;
+end
+
+wire ram_clk = clk1 | clk3;
+Gowin_SP ram(
+    .dout(ram_val), //output [7:0] dout
+    .clk(ram_clk), //input clk
+    .oce(1'b1), //input oce
+    .ce(1'b1), //input ce
+    .reset(1'b0), //input reset
+    .wre(ram_write), //input wre
+    .ad(ram_addr), //input [7:0] ad
+    .din(din ? sfr_read_val : new_ram_val) //input [7:0] din
+);
 
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-wire cout;
+wire dout;
+wire din;
 
 BFCore core(
     .enable(~finish),
-    .clk(main_clk),
+    .clk(clk2),
     .opecode(opecode),
     .ram_addr(ram_addr),
     .ram_val(ram_val),
     .next_ram_addr(new_ram_addr),
     .next_ram_val(new_ram_val),
-    .cout(cout),
+    .dout(dout),
+    .din(din),
     .rom_addr(rom_addr)
 );
 
@@ -99,16 +116,35 @@ SevSegByte sevseg(
     .sevseg_sel(sevseg_sel)
 );
 
-assign led_array = ~rom_addr;
+//assign led_array = ~rom_addr;
 
-SerialOut serial(
+wire pwm1;
+wire pwm2;
+wire pwm3;
+
+assign led_array = ~{5'h00,pwm3,pwm2,pwm1};
+//assign led_array = ~sfr_read_val;
+
+wire sfr_write = clk3 & dout;
+SFR sfr(
     .clk(clk),
     .nrst(nrst),
-    .char(new_ram_val),
-    .valid(main_clk & cout),
+    .write_val(new_ram_val),
+    .addr(ram_addr),
+    .write_valid(sfr_write),
+    .read_val(sfr_read_val),
+
+    //io
+    .pwm1_out(pwm1),
+    .pwm2_out(pwm2),
+    .pwm3_out(pwm3),
+    .enc_a(enc_a),
+    .enc_b(enc_b),
     .uart_tx(uart_tx)
 );
 
 assign uart_tx_sub = uart_tx;
+assign char_pushing = 0;//sfr_write;
+
 
 endmodule

@@ -5,12 +5,16 @@
 //Part Number: GW5A-LV25MG121NES
 //Device: GW5A-25
 //Device Version: A
-//Created Time: Mon 12 30 21:51:52 2024
+//Created Time: Thu 01 16 23:05:56 2025
 
+IO_LOC "char_pushing" D7;
+IO_PORT "char_pushing" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "uart_tx_sub" G11;
 IO_PORT "uart_tx_sub" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "uart_tx" C3;
 IO_PORT "uart_tx" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm1_out" E8;
+IO_PORT "pwm1_out" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "led_array[7]" A11;
 IO_PORT "led_array[7]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "led_array[6]" A10;
@@ -47,3 +51,7 @@ IO_LOC "rst" H11;
 IO_PORT "rst" PULL_MODE=NONE BANK_VCCIO=3.3;
 IO_LOC "clk" E2;
 IO_PORT "clk" PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_LOC "enc_b" B10;
+IO_PORT "enc_b" PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_LOC "enc_a" C10;
+IO_PORT "enc_a" PULL_MODE=NONE BANK_VCCIO=3.3;
