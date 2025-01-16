@@ -2,6 +2,9 @@ module top(
     input clk,
     input rst,
 
+    input enc_a,
+    input enc_b,
+
     output [6:0] sevseg_led,
     output sevseg_sel,
     output [7:0] led_array,
@@ -19,7 +22,7 @@ wire nrst = ~rst;
 ////////////////////////////////////////////////
 wire main_clk;
 ClockDivider #(
-    .division_ratio(50_000)
+    .division_ratio(1_000)
 )
 main_clk_divider(
     .base_clk(clk),
@@ -58,6 +61,8 @@ wire [7:0] ram_val;
 wire [7:0] new_ram_addr;
 wire [7:0] new_ram_val;
 
+wire [7:0] sfr_read_val;
+
 reg  ram_write = 1'b0;
 always @(posedge clk2, negedge clk3)begin
     if(clk2)
@@ -79,13 +84,14 @@ Gowin_SP ram(
     .reset(1'b0), //input reset
     .wre(ram_write), //input wre
     .ad(ram_addr), //input [7:0] ad
-    .din(new_ram_val) //input [7:0] din
+    .din(din ? sfr_read_val : new_ram_val) //input [7:0] din
 );
 
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-wire cout;
+wire dout;
+wire din;
 
 BFCore core(
     .enable(~finish),
@@ -95,7 +101,8 @@ BFCore core(
     .ram_val(ram_val),
     .next_ram_addr(new_ram_addr),
     .next_ram_val(new_ram_val),
-    .cout(cout),
+    .dout(dout),
+    .din(din),
     .rom_addr(rom_addr)
 );
 
@@ -109,16 +116,30 @@ SevSegByte sevseg(
     .sevseg_sel(sevseg_sel)
 );
 
-assign led_array = ~rom_addr;
+//assign led_array = ~rom_addr;
 
-wire sfr_write = clk3 & cout;
+wire pwm1;
+wire pwm2;
+wire pwm3;
+
+assign led_array = ~{5'h00,pwm3,pwm2,pwm1};
+//assign led_array = ~sfr_read_val;
+
+wire sfr_write = clk3 & dout;
 SFR sfr(
     .clk(clk),
     .nrst(nrst),
-    .val(new_ram_val),
+    .write_val(new_ram_val),
     .addr(ram_addr),
-    .valid(sfr_write),
-    .pwm1_out(pwm1_out),
+    .write_valid(sfr_write),
+    .read_val(sfr_read_val),
+
+    //io
+    .pwm1_out(pwm1),
+    .pwm2_out(pwm2),
+    .pwm3_out(pwm3),
+    .enc_a(enc_a),
+    .enc_b(enc_b),
     .uart_tx(uart_tx)
 );
 

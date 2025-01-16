@@ -11,7 +11,8 @@ module BFCore#(
     input [data_bit_width-1 : 0] ram_val,
     output reg [ram_addr_width-1 : 0] next_ram_addr,
     output reg [data_bit_width-1 : 0] next_ram_val,
-    output reg cout,
+    output reg dout,
+    output reg din,
     output [rom_addr_width-1 : 0] rom_addr
 );
 
@@ -22,7 +23,7 @@ module BFCore#(
 `define IF   3'b011 //[
 `define BACK 3'b010 //]
 `define OUT  3'b001 //.
-`define NOP  3'b000 //,
+`define IN   3'b000 //,
 
 localparam prg_cnt_depth = 8;
 reg [7:0] prg_cnt_sel;
@@ -60,28 +61,32 @@ always@(posedge clk) begin
                 `INC : begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val + 1;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b0;
                     prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
 
                 `DEC : begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val - 1;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b0;
                     prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
 
                 `MOVR : begin
                     next_ram_addr <= ram_addr + 1;
                     next_ram_val <= ram_val;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b0;
                     prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
                 
                 `MOVL : begin
                     next_ram_addr <= ram_addr - 1;
                     next_ram_val <= ram_val;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b0;
                     prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
 
@@ -96,7 +101,8 @@ always@(posedge clk) begin
 
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b0;
                 end
 
                 `BACK : begin
@@ -108,27 +114,32 @@ always@(posedge clk) begin
 
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b0;
                 end
 
                 `OUT : begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val;
-                    cout <= 1'b1;
+                    dout <= 1'b1;
+                    din <= 1'b0;
                     prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
                 
-                default: begin
+                `IN : begin
                     next_ram_addr <= ram_addr;
                     next_ram_val <= ram_val;
-                    cout <= 1'b0;
+                    dout <= 1'b0;
+                    din <= 1'b1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
                 end
             endcase
         end
     end else begin
         next_ram_addr <= ram_addr;
         next_ram_val <= ram_val;
-        cout <= 1'b0;
+        dout <= 1'b0;
+        din <= 1'b0;
     end
 end
 

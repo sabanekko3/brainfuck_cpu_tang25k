@@ -18,7 +18,9 @@ def decode_bf_cmd(cmd):
     else:
         return None
 
-with open("src.bf", "r") as bf_code, open("../src/rom.sv", "w") as bfrom:
+file_name = input("file name(.bf):")
+
+with open(f"{file_name}.bf", "r") as bf_code, open("../src/rom.sv", "w") as bfrom:
     bfrom.write("module ROM (\n")
     bfrom.write("    input [10:0] addr,\n")
     bfrom.write("    output reg [2:0] code,\n")
@@ -31,7 +33,7 @@ with open("src.bf", "r") as bf_code, open("../src/rom.sv", "w") as bfrom:
     bfrom.write("`define IF   3'b011 //[\n")
     bfrom.write("`define BACK 3'b010 //]\n")
     bfrom.write("`define OUT  3'b001 //.\n")
-    bfrom.write("`define NOP  3'b000 //,\n\n")
+    bfrom.write("`define IN  3'b000 //,\n\n")
     
     
     code = []
