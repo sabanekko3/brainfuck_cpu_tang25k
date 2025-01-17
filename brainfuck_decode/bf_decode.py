@@ -22,7 +22,7 @@ file_name = input("file name(.bf):")
 
 with open(f"{file_name}.bf", "r") as bf_code, open("../src/rom.sv", "w") as bfrom:
     bfrom.write("module ROM (\n")
-    bfrom.write("    input [10:0] addr,\n")
+    bfrom.write("    input [9:0] addr,\n")
     bfrom.write("    output reg [2:0] code,\n")
     bfrom.write("    output rom_overrun\n")
     bfrom.write(");\n")

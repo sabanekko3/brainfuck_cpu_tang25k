@@ -1,5 +1,5 @@
 module PWMGenerator#(
-    parameter counter_bit = 32
+    parameter counter_bit = 8
 )
 (
     input pwm_clk,

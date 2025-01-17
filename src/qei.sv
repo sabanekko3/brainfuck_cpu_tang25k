@@ -4,6 +4,7 @@ module QEI#(
 (
     input enc_a,
     input enc_b,
+    input nrst,
     output reg [bit_width-1 :0] count
 );
 
@@ -20,9 +21,14 @@ reg [1:0] prev_state = 0;
 
 wire enc_is_moving = enc_state != prev_state;
 
-always @(posedge enc_is_moving)begin
-    count = count + bit_width'(signed'(2'(enc_state - prev_state)));
-    prev_state = enc_state;
+always @(posedge enc_is_moving, negedge nrst)begin
+    if(~nrst)begin
+        count <= 0;
+        prev_state <= enc_state;
+    end else begin
+        count <= count + bit_width'(signed'(2'(enc_state - prev_state)));
+        prev_state <= enc_state;
+    end
 end
 
 endmodule

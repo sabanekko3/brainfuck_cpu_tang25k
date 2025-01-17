@@ -18,6 +18,8 @@ module SFR(
 
 enum{
     NOP,
+    TMR0L,
+    TMR0H,
     PWM_PERIOD,
     PWM1_DUTY,
     PWM2_DUTY,
@@ -26,13 +28,14 @@ enum{
     SOUT
 } sfr_addr;
 
+reg [15:0] tmr0_cnt = 16'h0;
 reg [7:0] pwm_period = 8'h0;
 reg [7:0] pwm1_duty = 8'h0;
 reg [7:0] pwm2_duty = 8'h0;
 reg [7:0] pwm3_duty = 8'h0;
 wire [7:0] enc_cnt;
 
-wire [7:0] sfr_regs [0:SOUT] = '{8'h0, pwm_period, pwm1_duty, pwm2_duty, pwm3_duty, enc_cnt, 8'h0};
+wire [7:0] sfr_regs [0:SOUT] = '{8'h0, tmr0_cnt[7:0], tmr0_cnt[15:8], pwm_period, pwm1_duty, pwm2_duty, pwm3_duty, enc_cnt, 8'h0};
 
 always @(posedge write_valid)begin
     case(addr)
@@ -46,32 +49,42 @@ end
 assign read_val = sfr_regs[addr];
 
 ////////////////////////////////////////////////
-//pwm
+//timer clock
 ////////////////////////////////////////////////
-wire pwm_clk;
+wire timer_clk;
 ClockDivider #(
     .division_ratio(100)
 )
-pwm_clk_divider(
+timer_clk_divider(
     .base_clk(clk),
-    .divided_clk(pwm_clk)
+    .divided_clk(timer_clk)
 );
 
+////////////////////////////////////////////////
+//timer0
+////////////////////////////////////////////////
 
+always @(posedge timer_clk)begin
+    tmr0_cnt <= tmr0_cnt + 16'h1;
+end
+
+////////////////////////////////////////////////
+//pwm
+////////////////////////////////////////////////
 PWMGenerator pwm(
-    .pwm_clk(pwm_clk),
+    .pwm_clk(timer_clk),
     .pwm_period(pwm_period),
     .pwm_duty(pwm1_duty),
     .pwm_out(pwm1_out)
 );
 PWMGenerator pwm2(
-    .pwm_clk(pwm_clk),
+    .pwm_clk(timer_clk),
     .pwm_period(pwm_period),
     .pwm_duty(pwm2_duty),
     .pwm_out(pwm2_out)
 );
 PWMGenerator pwm1(
-    .pwm_clk(pwm_clk),
+    .pwm_clk(timer_clk),
     .pwm_period(pwm_period),
     .pwm_duty(pwm3_duty),
     .pwm_out(pwm3_out)
@@ -81,6 +94,7 @@ PWMGenerator pwm1(
 //qei
 ////////////////////////////////////////////////
 QEI qei(
+    .nrst(nrst),
     .enc_a(enc_a),
     .enc_b(enc_b),
     .count(enc_cnt)

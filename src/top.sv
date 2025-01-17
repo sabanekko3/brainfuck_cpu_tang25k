@@ -40,11 +40,28 @@ wire clk2 = clk_array[1]&~main_clk; //decode
 wire clk3 = clk_array[2]&~main_clk; //ram_write
 
 ////////////////////////////////////////////////
-//ROM control
+//wires
 ////////////////////////////////////////////////
-wire [10:0] rom_addr;
+
+wire [9:0] rom_addr;
 wire [2:0] opecode;
 wire finish;
+
+reg [7:0] ram_addr = 8'h0;
+wire [7:0] ram_val;
+
+wire [7:0] new_ram_addr;
+wire [7:0] new_ram_val;
+
+wire [7:0] sfr_read_val;
+
+reg  ram_write = 1'b0;
+wire dout;
+wire din;
+
+////////////////////////////////////////////////
+//ROM control
+////////////////////////////////////////////////
 
 ROM rom(
     .addr(rom_addr),
@@ -55,15 +72,6 @@ ROM rom(
 ////////////////////////////////////////////////
 //RAM control
 ////////////////////////////////////////////////
-reg [7:0] ram_addr = 8'h0;
-wire [7:0] ram_val;
-
-wire [7:0] new_ram_addr;
-wire [7:0] new_ram_val;
-
-wire [7:0] sfr_read_val;
-
-reg  ram_write = 1'b0;
 always @(posedge clk2, negedge clk3)begin
     if(clk2)
         ram_write <= 1'b1;
@@ -90,9 +98,6 @@ Gowin_SP ram(
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-wire dout;
-wire din;
-
 BFCore core(
     .enable(~finish),
     .clk(clk2),

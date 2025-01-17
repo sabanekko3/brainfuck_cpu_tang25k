@@ -1,5 +1,5 @@
 module ROM (
-    input [10:0] addr,
+    input [9:0] addr,
     output reg [2:0] code,
     output rom_overrun
 );
@@ -12,13 +12,13 @@ module ROM (
 `define OUT  3'b001 //.
 `define IN  3'b000 //,
 
-localparam len = 199;
+localparam len = 201;
 
 always_comb begin
     case(addr)
         10'h000:code <= `MOVR;
-        10'h001:code <= `INC;
-        10'h002:code <= `INC;
+        10'h001:code <= `MOVR;
+        10'h002:code <= `MOVR;
         10'h003:code <= `INC;
         10'h004:code <= `INC;
         10'h005:code <= `INC;
@@ -187,34 +187,36 @@ always_comb begin
         10'h0a8:code <= `INC;
         10'h0a9:code <= `INC;
         10'h0aa:code <= `INC;
-        10'h0ab:code <= `OUT;
-        10'h0ac:code <= `MOVR;
-        10'h0ad:code <= `MOVR;
+        10'h0ab:code <= `INC;
+        10'h0ac:code <= `INC;
+        10'h0ad:code <= `OUT;
         10'h0ae:code <= `MOVR;
-        10'h0af:code <= `INC;
-        10'h0b0:code <= `IF;
-        10'h0b1:code <= `MOVL;
+        10'h0af:code <= `MOVR;
+        10'h0b0:code <= `MOVR;
+        10'h0b1:code <= `INC;
         10'h0b2:code <= `IF;
-        10'h0b3:code <= `DEC;
-        10'h0b4:code <= `BACK;
-        10'h0b5:code <= `MOVR;
-        10'h0b6:code <= `MOVR;
-        10'h0b7:code <= `IN;
-        10'h0b8:code <= `IF;
-        10'h0b9:code <= `DEC;
-        10'h0ba:code <= `MOVL;
-        10'h0bb:code <= `MOVL;
-        10'h0bc:code <= `INC;
-        10'h0bd:code <= `MOVR;
-        10'h0be:code <= `MOVR;
-        10'h0bf:code <= `BACK;
-        10'h0c0:code <= `MOVL;
-        10'h0c1:code <= `MOVL;
-        10'h0c2:code <= `OUT;
-        10'h0c3:code <= `MOVR;
-        10'h0c4:code <= `MOVR;
-        10'h0c5:code <= `MOVL;
-        10'h0c6:code <= `BACK;
+        10'h0b3:code <= `MOVL;
+        10'h0b4:code <= `IF;
+        10'h0b5:code <= `DEC;
+        10'h0b6:code <= `BACK;
+        10'h0b7:code <= `MOVR;
+        10'h0b8:code <= `MOVR;
+        10'h0b9:code <= `IN;
+        10'h0ba:code <= `IF;
+        10'h0bb:code <= `DEC;
+        10'h0bc:code <= `MOVL;
+        10'h0bd:code <= `MOVL;
+        10'h0be:code <= `INC;
+        10'h0bf:code <= `MOVR;
+        10'h0c0:code <= `MOVR;
+        10'h0c1:code <= `BACK;
+        10'h0c2:code <= `MOVL;
+        10'h0c3:code <= `MOVL;
+        10'h0c4:code <= `OUT;
+        10'h0c5:code <= `MOVR;
+        10'h0c6:code <= `MOVR;
+        10'h0c7:code <= `MOVL;
+        10'h0c8:code <= `BACK;
         default:code <=  `INC;
     endcase
 end
