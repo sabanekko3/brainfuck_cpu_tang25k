@@ -117,7 +117,7 @@ PWMComplement pwm3m(
 //qei
 ////////////////////////////////////////////////
 wire [15:0] ec;
-assign enc_cnt = ec[10:3];
+assign enc_cnt = ec[8:1];
 
 QEI #(
     .bit_width(16)
