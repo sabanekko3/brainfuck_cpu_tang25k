@@ -5,16 +5,12 @@
 //Part Number: GW5A-LV25MG121NES
 //Device: GW5A-25
 //Device Version: A
-//Created Time: Thu 01 16 23:05:56 2025
+//Created Time: Tue 01 21 18:48:38 2025
 
-IO_LOC "char_pushing" D7;
-IO_PORT "char_pushing" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "uart_tx_sub" G11;
+IO_LOC "uart_tx_sub" G10;
 IO_PORT "uart_tx_sub" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "uart_tx" C3;
 IO_PORT "uart_tx" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "pwm1_out" E8;
-IO_PORT "pwm1_out" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "led_array[7]" A11;
 IO_PORT "led_array[7]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "led_array[6]" A10;
@@ -31,27 +27,23 @@ IO_LOC "led_array[1]" L5;
 IO_PORT "led_array[1]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "led_array[0]" K5;
 IO_PORT "led_array[0]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_sel" J5;
-IO_PORT "sevseg_sel" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[6]" G5;
-IO_PORT "sevseg_led[6]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[5]" F5;
-IO_PORT "sevseg_led[5]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[4]" G7;
-IO_PORT "sevseg_led[4]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[3]" G8;
-IO_PORT "sevseg_led[3]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[2]" H5;
-IO_PORT "sevseg_led[2]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[1]" H8;
-IO_PORT "sevseg_led[1]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
-IO_LOC "sevseg_led[0]" H7;
-IO_PORT "sevseg_led[0]" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm3l" J5;
+IO_PORT "pwm3l" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm3h" H7;
+IO_PORT "pwm3h" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm2l" H5;
+IO_PORT "pwm2l" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm2h" H8;
+IO_PORT "pwm2h" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm1l" G7;
+IO_PORT "pwm1l" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
+IO_LOC "pwm1h" F5;
+IO_PORT "pwm1h" PULL_MODE=NONE DRIVE=8 BANK_VCCIO=3.3;
 IO_LOC "rst" H11;
 IO_PORT "rst" PULL_MODE=NONE BANK_VCCIO=3.3;
 IO_LOC "clk" E2;
 IO_PORT "clk" PULL_MODE=NONE BANK_VCCIO=3.3;
-IO_LOC "enc_b" B10;
-IO_PORT "enc_b" PULL_MODE=NONE BANK_VCCIO=3.3;
-IO_LOC "enc_a" C10;
+IO_LOC "enc_a" G5;
 IO_PORT "enc_a" PULL_MODE=NONE BANK_VCCIO=3.3;
+IO_LOC "enc_b" G8;
+IO_PORT "enc_b" PULL_MODE=NONE BANK_VCCIO=3.3;

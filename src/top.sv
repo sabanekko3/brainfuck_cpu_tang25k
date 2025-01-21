@@ -2,17 +2,13 @@ module top(
     input clk,
     input rst,
 
-    input enc_a,
-    input enc_b,
+    output pwm1h,pwm1l,pwm2h,pwm2l,pwm3h,pwm3l,
+    input enc_a,enc_b,
 
-    output [6:0] sevseg_led,
-    output sevseg_sel,
     output [7:0] led_array,
 
-    output pwm1_out,
     output uart_tx,
-    output uart_tx_sub, //G11
-    output char_pushing
+    output uart_tx_sub //G11
 );
 
 wire nrst = ~rst;
@@ -22,7 +18,7 @@ wire nrst = ~rst;
 ////////////////////////////////////////////////
 wire main_clk;
 ClockDivider #(
-    .division_ratio(1_000)
+    .division_ratio(1_00)
 )
 main_clk_divider(
     .base_clk(clk),
@@ -114,21 +110,7 @@ BFCore core(
 ////////////////////////////////////////////////
 //output
 ////////////////////////////////////////////////
-SevSegByte sevseg(
-    .clk(clk),
-    .byte_data(ram_val),
-    .sevseg_led(sevseg_led),
-    .sevseg_sel(sevseg_sel)
-);
-
-//assign led_array = ~rom_addr;
-
-wire pwm1;
-wire pwm2;
-wire pwm3;
-
-assign led_array = ~{5'h00,pwm3,pwm2,pwm1};
-//assign led_array = ~sfr_read_val;
+assign led_array = ~sfr_read_val;
 
 wire sfr_write = clk3 & dout;
 SFR sfr(
@@ -140,12 +122,7 @@ SFR sfr(
     .read_val(sfr_read_val),
 
     //io
-    .pwm1_out(pwm1),
-    .pwm2_out(pwm2),
-    .pwm3_out(pwm3),
-    .enc_a(enc_a),
-    .enc_b(enc_b),
-    .uart_tx(uart_tx)
+    .*
 );
 
 assign uart_tx_sub = uart_tx;
