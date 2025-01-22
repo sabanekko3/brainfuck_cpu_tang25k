@@ -24,27 +24,44 @@ enum{
     PWM1_DUTY,
     PWM2_DUTY,
     PWM3_DUTY,
+    ENC_PRSC,
     ENC,
     SOUT
 } sfr_addr;
 
 reg [15:0] tmr0_cnt = 16'h0;
+
 reg [7:0] pwm_dead_time = 8'h0;
 reg [7:0] pwm_period = 8'h0;
 reg [7:0] pwm1_duty = 8'h0;
 reg [7:0] pwm2_duty = 8'h0;
 reg [7:0] pwm3_duty = 8'h0;
+
+reg [7:0] enc_prescaler = 8'h0;
+reg [7:0] enc_pos_bias = 8'h0;
 wire [7:0] enc_cnt;
 
-wire [7:0] sfr_regs [0:SOUT] = '{8'h0, tmr0_cnt[7:0], tmr0_cnt[15:8], pwm_dead_time, pwm_period, pwm1_duty, pwm2_duty, pwm3_duty, enc_cnt, 8'h0};
+wire [7:0] sfr_regs [0:SOUT] = '{8'h0,
+                                tmr0_cnt[7:0],
+                                tmr0_cnt[15:8],
+                                pwm_dead_time,
+                                pwm_period,
+                                pwm1_duty,
+                                pwm2_duty,
+                                pwm3_duty,
+                                enc_prescaler,
+                                enc_cnt - enc_pos_bias,
+                                8'h0};
 
 always @(posedge write_valid)begin
     case(addr)
         PWM_DT:     pwm_dead_time <= write_val;
-        PWM_PERIOD: pwm_period <= write_val;
-        PWM1_DUTY:  pwm1_duty <= write_val;
-        PWM2_DUTY:  pwm2_duty <= write_val;
-        PWM3_DUTY:  pwm3_duty <= write_val;
+        PWM_PERIOD: pwm_period    <= write_val;
+        PWM1_DUTY:  pwm1_duty     <= write_val;
+        PWM2_DUTY:  pwm2_duty     <= write_val;
+        PWM3_DUTY:  pwm3_duty     <= write_val;
+        ENC_PRSC:   enc_prescaler <= write_val;
+        ENC:        enc_pos_bias  <= enc_cnt - write_val;
     endcase
 end
 
@@ -117,10 +134,10 @@ PWMComplement pwm3m(
 //qei
 ////////////////////////////////////////////////
 wire [15:0] ec;
-assign enc_cnt = ec[8:1];
+assign enc_cnt = ec >>> enc_prescaler;
 
 QEI #(
-    .bit_width(16)
+    .bit_width(32)
 )qei(
     .nrst(nrst),
     .enc_a(enc_a),

@@ -18,7 +18,7 @@ wire nrst = ~rst;
 ////////////////////////////////////////////////
 wire main_clk;
 ClockDivider #(
-    .division_ratio(1_00)
+    .division_ratio(100)
 )
 main_clk_divider(
     .base_clk(clk),

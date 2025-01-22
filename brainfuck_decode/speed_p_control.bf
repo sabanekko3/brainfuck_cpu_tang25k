@@ -26,9 +26,7 @@ A~:SOUT
 ]
 >.>. //pwm1 2 duty = 128
 
->>+. //enc prescaler:2
-<<<
-
+<
 
 //control pwm2 duty
 //pwm1 duty : const
@@ -37,11 +35,12 @@ A~:SOUT
 	>>>>,
 	[
 		-
-		<<+<+
+		<<+<-----
 		>>> //move enc_val to pwm2 and pwm3
 	]
 	<<<.
 	>
-	[-<->] //reset pwm2
-	<<
+	[-<+++++>] //reset pwm2
+	>>[-].
+	<<<<
 ]
