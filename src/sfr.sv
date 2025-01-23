@@ -71,11 +71,9 @@ assign read_val = sfr_regs[addr];
 //timer clock
 ////////////////////////////////////////////////
 wire timer_clk;
-ClockDivider #(
-    .division_ratio(100)
-)
-timer_clk_divider(
+ClockDivider timer_clk_divider(
     .base_clk(clk),
+    .division_ratio(100),
     .divided_clk(timer_clk)
 );
 

@@ -17,11 +17,9 @@ wire nrst = ~rst;
 //clock generate
 ////////////////////////////////////////////////
 wire main_clk;
-ClockDivider #(
-    .division_ratio(100)
-)
-main_clk_divider(
+ClockDivider main_clk_divider(
     .base_clk(clk),
+    .division_ratio(100),
     .divided_clk(main_clk)
 );
 

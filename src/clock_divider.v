@@ -1,13 +1,13 @@
 module ClockDivider#(
-    parameter division_ratio = 1,
-    parameter ratio_bit = 32
+    parameter BIT_WIDTH = 32
 )
 (
     input base_clk,
+    input [BIT_WIDTH-1 :0] division_ratio,
     output reg divided_clk
 );
 
-reg [ratio_bit-1 : 0] counter = 0;
+reg [BIT_WIDTH-1 : 0] counter = 0;
 
 always@(posedge base_clk)begin
     if(counter == 0)begin
