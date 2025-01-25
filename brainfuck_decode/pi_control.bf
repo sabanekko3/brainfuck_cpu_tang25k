@@ -51,7 +51,7 @@ B~:SOUT
 	>>>>,
 	[
 		-
-		<<+<+++++ +  +
+		<<+<+++++ +  +  //Pgain:6  Igain:1
 		>>> //move enc_val to pwm2 and pwm3
 	]
 	<<<.
