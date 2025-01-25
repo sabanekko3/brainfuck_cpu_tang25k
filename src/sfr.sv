@@ -17,6 +17,7 @@ module SFR(
 
 enum{
     NOP,
+    TMR0_DIVR,
     TMR0L,
     TMR0H,
     PWM_DT,
@@ -29,6 +30,7 @@ enum{
     SOUT
 } sfr_addr;
 
+reg [7:0] tmr0_div_ratio = 8'h0;
 reg [15:0] tmr0_cnt = 16'h0;
 
 reg [7:0] pwm_dead_time = 8'h0;
@@ -42,6 +44,7 @@ reg [7:0] enc_division_ratio = 8'h0;
 wire [7:0] enc_cnt;
 
 wire [7:0] sfr_regs [0:SOUT] = '{8'h0,
+                                tmr0_div_ratio,
                                 tmr0_cnt[7:0],
                                 tmr0_cnt[15:8],
                                 pwm_dead_time,
@@ -55,6 +58,7 @@ wire [7:0] sfr_regs [0:SOUT] = '{8'h0,
 
 always @(posedge write_valid)begin
     case(addr)
+        TMR0_DIVR:  tmr0_div_ratio     <= write_val;
         PWM_DT:     pwm_dead_time      <= write_val;
         PWM_PERIOD: pwm_period         <= write_val;
         PWM1_DUTY:  pwm1_duty          <= write_val;
@@ -73,7 +77,7 @@ assign read_val = sfr_regs[addr];
 wire timer_clk;
 ClockDivider timer_clk_divider(
     .base_clk(clk),
-    .division_ratio(100),
+    .division_ratio(50),
     .divided_clk(timer_clk)
 );
 
@@ -81,8 +85,16 @@ ClockDivider timer_clk_divider(
 //timer0
 ////////////////////////////////////////////////
 
+reg [7:0] tmr0_pre_cnt = 8'h0;
+
 always @(posedge timer_clk)begin
-    tmr0_cnt <= tmr0_cnt + 16'h1;
+    if(tmr0_pre_cnt == 8'h0)begin
+        tmr0_pre_cnt <= tmr0_div_ratio;
+        tmr0_cnt <= tmr0_cnt +8'h1;
+    end
+    else begin
+        tmr0_pre_cnt <= tmr0_pre_cnt -8'h1;
+    end
 end
 
 ////////////////////////////////////////////////

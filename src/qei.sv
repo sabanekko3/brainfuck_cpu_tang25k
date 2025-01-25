@@ -37,7 +37,6 @@ always_ff @(posedge enc_is_moving,negedge nrst)begin
                 pre_counter <= 0;
             end
             else begin
-                count <= count;
                 pre_counter <= pre_counter +1;
             end
         end
@@ -47,7 +46,6 @@ always_ff @(posedge enc_is_moving,negedge nrst)begin
                 pre_counter <= division_ratio;
             end
             else begin
-                count <= count;
                 pre_counter <= pre_counter -1;
             end
         end

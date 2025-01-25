@@ -14,7 +14,6 @@ always@(posedge base_clk)begin
         counter <= division_ratio;
         divided_clk <= ~divided_clk;
     end
-
     else begin
         counter <= counter - 1;
     end
