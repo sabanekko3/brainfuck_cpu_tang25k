@@ -10,7 +10,6 @@
         <File path="src/gowin_sp/gowin_sp.v" type="file.verilog" enable="1"/>
         <File path="src/pwm.v" type="file.verilog" enable="1"/>
         <File path="src/qei.sv" type="file.verilog" enable="1"/>
-        <File path="src/ram.sv" type="file.verilog" enable="1"/>
         <File path="src/rom.sv" type="file.verilog" enable="1"/>
         <File path="src/serial_output.sv" type="file.verilog" enable="1"/>
         <File path="src/sevseg.v" type="file.verilog" enable="1"/>

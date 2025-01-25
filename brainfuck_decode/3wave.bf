@@ -13,7 +13,8 @@
 {12:(if state)} 
 {13:0} {0} {0} {0} {0}
 
-+
+>>>
++.
 >+++++ +++++ ++.//set period
 >          //pwm1=0
 >+++++ +++ //pwm2=8
@@ -40,8 +41,6 @@
 		-
 		<<<<-.>>>>>
 	]
-
-	//current ptr = if_state1 and 1
 	
 	<+ //set if state
 	<<<<
@@ -78,8 +77,6 @@
 		-
 		<<<<< <-. >>>>> >>
 	]
-
-	//current ptr = if_state2 and 1
 	
 	//if duty = 0
 	<<<<+ //set if state

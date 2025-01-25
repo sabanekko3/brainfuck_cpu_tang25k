@@ -2,17 +2,13 @@ module top(
     input clk,
     input rst,
 
-    input enc_a,
-    input enc_b,
+    output pwm1h,pwm1l,pwm2h,pwm2l,pwm3h,pwm3l,
+    input enc_a,enc_b,
 
-    output [6:0] sevseg_led,
-    output sevseg_sel,
     output [7:0] led_array,
 
-    output pwm1_out,
     output uart_tx,
-    output uart_tx_sub, //G11
-    output char_pushing
+    output uart_tx_sub //G11
 );
 
 wire nrst = ~rst;
@@ -21,11 +17,9 @@ wire nrst = ~rst;
 //clock generate
 ////////////////////////////////////////////////
 wire main_clk;
-ClockDivider #(
-    .division_ratio(1_000)
-)
-main_clk_divider(
+ClockDivider main_clk_divider(
     .base_clk(clk),
+    .division_ratio(100),
     .divided_clk(main_clk)
 );
 
@@ -40,11 +34,28 @@ wire clk2 = clk_array[1]&~main_clk; //decode
 wire clk3 = clk_array[2]&~main_clk; //ram_write
 
 ////////////////////////////////////////////////
-//ROM control
+//wires
 ////////////////////////////////////////////////
-wire [10:0] rom_addr;
+
+wire [9:0] rom_addr;
 wire [2:0] opecode;
 wire finish;
+
+reg [7:0] ram_addr = 8'h0;
+wire [7:0] ram_val;
+
+wire [7:0] new_ram_addr;
+wire [7:0] new_ram_val;
+
+wire [7:0] sfr_read_val;
+
+reg  ram_write = 1'b0;
+wire dout;
+wire din;
+
+////////////////////////////////////////////////
+//ROM control
+////////////////////////////////////////////////
 
 ROM rom(
     .addr(rom_addr),
@@ -55,15 +66,6 @@ ROM rom(
 ////////////////////////////////////////////////
 //RAM control
 ////////////////////////////////////////////////
-reg [7:0] ram_addr = 8'h0;
-wire [7:0] ram_val;
-
-wire [7:0] new_ram_addr;
-wire [7:0] new_ram_val;
-
-wire [7:0] sfr_read_val;
-
-reg  ram_write = 1'b0;
 always @(posedge clk2, negedge clk3)begin
     if(clk2)
         ram_write <= 1'b1;
@@ -90,9 +92,6 @@ Gowin_SP ram(
 ////////////////////////////////////////////////
 //core
 ////////////////////////////////////////////////
-wire dout;
-wire din;
-
 BFCore core(
     .enable(~finish),
     .clk(clk2),
@@ -109,21 +108,8 @@ BFCore core(
 ////////////////////////////////////////////////
 //output
 ////////////////////////////////////////////////
-SevSegByte sevseg(
-    .clk(clk),
-    .byte_data(ram_val),
-    .sevseg_led(sevseg_led),
-    .sevseg_sel(sevseg_sel)
-);
-
-//assign led_array = ~rom_addr;
-
-wire pwm1;
-wire pwm2;
-wire pwm3;
-
-assign led_array = ~{5'h00,pwm3,pwm2,pwm1};
-//assign led_array = ~sfr_read_val;
+wire [7:0] sfr_monitor;
+assign led_array = ~sfr_monitor;
 
 wire sfr_write = clk3 & dout;
 SFR sfr(
@@ -134,13 +120,10 @@ SFR sfr(
     .write_valid(sfr_write),
     .read_val(sfr_read_val),
 
+    .monitor_byte(sfr_monitor),
+
     //io
-    .pwm1_out(pwm1),
-    .pwm2_out(pwm2),
-    .pwm3_out(pwm3),
-    .enc_a(enc_a),
-    .enc_b(enc_b),
-    .uart_tx(uart_tx)
+    .*
 );
 
 assign uart_tx_sub = uart_tx;

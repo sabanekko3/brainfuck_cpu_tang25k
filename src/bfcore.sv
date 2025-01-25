@@ -55,7 +55,7 @@ always@(posedge clk) begin
                 nest_count = 8'h0;
             end
 
-            prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 8'h1;
+            prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 10'h1;
         end else begin
             case(opecode)
                 `INC : begin
@@ -87,7 +87,7 @@ always@(posedge clk) begin
                     next_ram_val <= ram_val;
                     dout <= 1'b0;
                     din <= 1'b0;
-                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 1;
+                    prg_cnt[prg_cnt_sel] <= prg_cnt[prg_cnt_sel] + 10'h1;
                 end
 
                 `IF : begin
