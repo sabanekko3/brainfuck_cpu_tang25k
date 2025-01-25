@@ -24,7 +24,7 @@ enum{
     PWM1_DUTY,
     PWM2_DUTY,
     PWM3_DUTY,
-    ENC_PRSC,
+    ENC_DIVR,
     ENC,
     SOUT
 } sfr_addr;
@@ -37,8 +37,8 @@ reg [7:0] pwm1_duty = 8'h0;
 reg [7:0] pwm2_duty = 8'h0;
 reg [7:0] pwm3_duty = 8'h0;
 
-reg [7:0] enc_prescaler = 8'h0;
 reg [7:0] enc_pos_bias = 8'h0;
+reg [7:0] enc_division_ratio = 8'h0;
 wire [7:0] enc_cnt;
 
 wire [7:0] sfr_regs [0:SOUT] = '{8'h0,
@@ -49,19 +49,19 @@ wire [7:0] sfr_regs [0:SOUT] = '{8'h0,
                                 pwm1_duty,
                                 pwm2_duty,
                                 pwm3_duty,
-                                enc_prescaler,
+                                enc_division_ratio,
                                 enc_cnt - enc_pos_bias,
                                 8'h0};
 
 always @(posedge write_valid)begin
     case(addr)
-        PWM_DT:     pwm_dead_time <= write_val;
-        PWM_PERIOD: pwm_period    <= write_val;
-        PWM1_DUTY:  pwm1_duty     <= write_val;
-        PWM2_DUTY:  pwm2_duty     <= write_val;
-        PWM3_DUTY:  pwm3_duty     <= write_val;
-        ENC_PRSC:   enc_prescaler <= write_val;
-        ENC:        enc_pos_bias  <= enc_cnt - write_val;
+        PWM_DT:     pwm_dead_time      <= write_val;
+        PWM_PERIOD: pwm_period         <= write_val;
+        PWM1_DUTY:  pwm1_duty          <= write_val;
+        PWM2_DUTY:  pwm2_duty          <= write_val;
+        PWM3_DUTY:  pwm3_duty          <= write_val;
+        ENC_DIVR:   enc_division_ratio <= write_val;
+        ENC:        enc_pos_bias       <= enc_cnt - write_val;
     endcase
 end
 
@@ -131,16 +131,15 @@ PWMComplement pwm3m(
 ////////////////////////////////////////////////
 //qei
 ////////////////////////////////////////////////
-wire [15:0] ec;
-assign enc_cnt = ec >>> enc_prescaler;
 
-QEI #(
-    .bit_width(32)
-)qei(
-    .nrst(nrst),
+QEI qei(
     .enc_a(enc_a),
     .enc_b(enc_b),
-    .count(ec)
+    .division_ratio(enc_division_ratio),
+
+    .nrst(nrst),
+    
+    .count(enc_cnt)
 );
 
 ////////////////////////////////////////////////

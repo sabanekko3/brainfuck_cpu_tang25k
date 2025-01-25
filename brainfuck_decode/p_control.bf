@@ -26,7 +26,7 @@ A~:SOUT
 ]
 >.>. //pwm1 2 duty = 128
 
->>++. //enc prescaler:2
+>>++++. //enc prescaler:2
 <<<
 
 
