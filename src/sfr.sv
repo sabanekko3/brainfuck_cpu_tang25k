@@ -7,6 +7,8 @@ module SFR(
 
     output [7:0] read_val,
 
+    output [7:0] monitor_byte,
+
     //io
     output pwm1h,pwm1l,pwm2h,pwm2l,pwm3h,pwm3l,
 
@@ -70,6 +72,8 @@ always @(posedge write_valid)begin
 end
 
 assign read_val = sfr_regs[addr];
+
+assign monitor_byte = pwm2_duty;
 
 ////////////////////////////////////////////////
 //timer clock

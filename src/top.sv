@@ -108,7 +108,8 @@ BFCore core(
 ////////////////////////////////////////////////
 //output
 ////////////////////////////////////////////////
-assign led_array = ~sfr_read_val;
+wire [7:0] sfr_monitor;
+assign led_array = ~sfr_monitor;
 
 wire sfr_write = clk3 & dout;
 SFR sfr(
@@ -118,6 +119,8 @@ SFR sfr(
     .addr(ram_addr),
     .write_valid(sfr_write),
     .read_val(sfr_read_val),
+
+    .monitor_byte(sfr_monitor),
 
     //io
     .*

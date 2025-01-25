@@ -12,35 +12,50 @@ reg map
 A:ENC
 B~:SOUT
 
+
++++++
+[
+	>+++++ +++++ ++
+	<-
+]
+>.  //timer0 prescale 61
+
+
 >>>+. dead time
 
 >
--. //period:255
-
-+
+-.+ //period:255
 
 +++++ +++++
 [
-	>+++++ +++++ ++
-	>+++++ +++++ ++
-	<<-
+	> +++++ +++++ ++
+	> +++++ +++++ ++
+	>>+++++
+	<<<<-
 ]
->.>. //pwm1 2 duty = 128
+>.
+>.   //pwm1 2 duty = 120
+>>.  //enc_prescaler = 30
 
->>+++++++. //enc prescaler:2
 <<<
 
 
 //control pwm2 duty
 //pwm1 duty : const
+//loop origin:PWM1_DUTY
 
 [
+	<<<<,[,] //wait until TMR0L == 0
+	>>>>
+	
 	>>>>,
 	[
 		-
-		<<<+
+		<<+<+++++ +  +
 		>>> //move enc_val to pwm2 and pwm3
 	]
 	<<<.
-	<
+	>
+	[-<----- ->] //reset pwm2
+	<<
 ]
